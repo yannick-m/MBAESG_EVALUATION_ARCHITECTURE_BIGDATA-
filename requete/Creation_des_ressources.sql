@@ -169,7 +169,7 @@ FROM @linkedin_stage/job_skills.csv
 FILE_FORMAT = (FORMAT_NAME = 'csv_format')
 ON_ERROR = 'CONTINUE';
 
-
+-- création de la table job_postings
 CREATE OR REPLACE TABLE job_postings (
   job_id STRING,
   company_name STRING,
@@ -202,6 +202,7 @@ CREATE OR REPLACE TABLE job_postings (
 );
 
 
+-- creation format de type csv
 CREATE OR REPLACE FILE FORMAT csv_format
 TYPE = 'CSV'
 FIELD_DELIMITER = ','
@@ -209,13 +210,14 @@ SKIP_HEADER = 1
 FIELD_OPTIONALLY_ENCLOSED_BY = '"'
 ERROR_ON_COLUMN_COUNT_MISMATCH = FALSE;
 
-
+-- chargement des donnée de job_postings depuis le stage
 COPY INTO job_postings
 FROM @linkedin_stage/job_postings.csv
 FILE_FORMAT = (FORMAT_NAME = 'csv_format')
 ON_ERROR = 'CONTINUE';
 
 
+-- création de la vue pour le traitement ou le nettoyage de la table job_posting
 CREATE OR REPLACE VIEW job_postings_clean AS
 SELECT
   job_id,
@@ -248,12 +250,13 @@ SELECT
   job_tags
 FROM job_postings;
 
-
+-- création  de la table industries_csv
 CREATE OR REPLACE TABLE industries_csv (
     industry_id string,
     industry_name STRING
 );
 
+-- insertion des données dans la table industries_csv
 INSERT INTO industries_csv (industry_id, industry_name) VALUES
 (1, 'Technologies de l\'information'),
 (2, 'Finance'),
@@ -276,6 +279,8 @@ INSERT INTO industries_csv (industry_id, industry_name) VALUES
 (19, 'Mode et Luxe'),
 (20, 'Organisations à but non lucratif');
 
+
+-- Compte le nombre d''offres distinctes associées à chaque secteur d''activité en utilisant les tables nettoyées et les jointures entre offres et secteurs.
 SELECT 
     i.industry_name AS secteur_activite,
     COUNT(DISTINCT jp.job_id) AS nombre_offres
@@ -285,9 +290,11 @@ JOIN industries_csv i ON ji.industry_id = i.industry_id
 GROUP BY i.industry_name
 ORDER BY nombre_offres DESC;
 
+-- Affiche tout le contenu de la table des secteurs d''activité
 SELECT * FROM industries_csv;
 
 
+-- Identifie les 10 paires secteur + poste les plus fréquentes dans les données brutes
 SELECT 
     ji.industry_id,
     jp.title,

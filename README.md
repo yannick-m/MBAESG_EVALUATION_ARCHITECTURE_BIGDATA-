@@ -1,4 +1,4 @@
-## Problèmes rencontrés et solutions proposées
+## Problèmes rencontrés et solutions proposée
 
 1. Colonnes manquantes ou mal nommées
 
@@ -48,10 +48,32 @@ Problème : Syntaxe invalide ou PAT mal configuré.
 
 Solution :Création d’un SECRET bien formaté 
 
+Exemple correct :
+CREATE OR REPLACE API INTEGRATION github_api_integration
+  API_PROVIDER = git_https_api
+  API_ALLOWED_PREFIXES = ('https://github.com/user/repo')
+  ALLOWED_AUTHENTICATION_SECRETS = (linkedin)
+  ENABLED = TRUE;
+
+6. Erreur lors de la création du Secret
+Problème : Syntaxe invalide ou PAT mal configuré.
+
+Solution :Création d’un SECRET bien formaté :
+
+CREATE OR REPLACE SECRET linkedin
+  TYPE = PASSWORD
+  USERNAME = 'ton_username'
+  PASSWORD = 'ton_personal_access_token';
+Le PAT doit inclure le scope repo.
+
 7. Nom d’objet déjà existant lors du clonage
 Problème : Object already exists.
 
 Solution :Supprimer ou renommer le dossier 
+
+Solution :Supprimer ou renommer le dossier :
+REMOVE @~/repos/NOM_DU_PROJET;
+
 
 8. Erreur push not permitted
 Problème : Erreur lors de la tentative de commit/push vers GitHub.
@@ -154,3 +176,4 @@ Si Snowflake dit que l’objet existe déjà, change le nom du stage ou supprime
 g. Sécuriser l’intégration
 Gère les accès aux secrets et API integrations avec les rôles utilisateurs dans Snowflake.
 Ne partage jamais ton token dans du code.
+Solution : Vérification stricte de la syntaxe SQL, et évitement des alias inutiles.
